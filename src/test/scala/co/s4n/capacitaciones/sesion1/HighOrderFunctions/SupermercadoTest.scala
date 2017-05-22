@@ -14,7 +14,6 @@ class SupermercadoTest extends FunSuite {
   )
 
   test("Buscar producto por nombre") {
-
     val supermercado: Supermercado = new Supermercado()
     assert(supermercado.buscarProductoPorNombre(productos, "Producto 1").size == 1)
 
@@ -26,7 +25,21 @@ class SupermercadoTest extends FunSuite {
 
     // 4.1 TODO Definir los filtros: precioMinimo, precioMaximo, marcaX, noMarcaX
 
+    def precioMinimo(precio: Double): FiltroProducto = {
+      product => product.precio >= precio
+    }
 
+    def precioMaximo(precio: Double): FiltroProducto = {
+      product => product.precio <= precio
+    }
+
+    def marcaX(marca: String): FiltroProducto = {
+      product => product.marca.eq(marca)
+    }
+
+    def noMarcaX(marca: String): FiltroProducto = {
+      product => !product.marca.eq(marca)
+    }
 
     assert(supermercado.buscarProductoPorFiltro(productos, precioMinimo(6000)).size == 3)
     assert(supermercado.buscarProductoPorFiltro(productos, precioMaximo(5000)).size == 1)
@@ -40,10 +53,18 @@ class SupermercadoTest extends FunSuite {
     val supermercado: Supermercado = new Supermercado()
 
     // 5.1 TODO Definir el filtro ReglaPrecio
+    def reglaPrecio(verificador: VerificadorPrecio): FiltroProducto = {
+      product => verificador(product.precio)
+    }
+    def precioMinimo(precio: Double): FiltroProducto = {
+      product => reglaPrecio(givePrice => givePrice >= precio)(product)
+    }
 
+    def precioMaximo(precio: Double): FiltroProducto = {
+      product => reglaPrecio(givePrice => givePrice <= precio)(product)
+    }
 
     // 5.2 TODO Redefinir los filtros: precioMinimo, precioMaximo
-
 
     assert(supermercado.buscarProductoPorFiltro(productos, precioMinimo(6000)).size == 3)
     assert(supermercado.buscarProductoPorFiltro(productos, precioMaximo(5000)).size == 1)
@@ -56,9 +77,14 @@ class SupermercadoTest extends FunSuite {
 
     // Filtro de marcaX (el mismo del test anterior)
 
-
     // 6.1 TODO Redefinir el filtro: noMarcaX, utilizando la funcion complemento (negacion del filtro marcaX)
 
+    def marcaX(marca: String): FiltroProducto = {
+      product => product.marca.eq(marca)
+    }
+    def noMarcaX(marca: String): FiltroProducto = {
+      Supermercado.complemento(marcaX(marca))
+    }
 
     assert(supermercado.buscarProductoPorFiltro(productos, marcaX("Pato")).size == 1)
     assert(supermercado.buscarProductoPorFiltro(productos, noMarcaX("Pato")).size == 3)
@@ -71,29 +97,47 @@ class SupermercadoTest extends FunSuite {
 
     // Regla de precio para los filtros precioMinimo y precioMaximo (la misma del test anterior)
 
-
     // Filtros (los mismos anteriores)
+    def precioMinimo(precio: Double): FiltroProducto = {
+      product => product.precio >= precio
+    }
 
+    def precioMaximo(precio: Double): FiltroProducto = {
+      product => product.precio <= precio
+    }
+
+    def marcaX(marca: String): FiltroProducto = {
+      product => product.marca.eq(marca)
+    }
+
+    def noMarcaX(marca: String): FiltroProducto = {
+      product => !product.marca.eq(marca)
+    }
 
     // filtroMultipleCualquiera
     // Todos los productos cuyo precio sea menor o igual a 10000 o sea de la marca S4N
     // 7.1.1 TODO Definir el filtro filtroMultipleCualquiera
-
-
+    def filtroMultipleCualquiera: FiltroProducto = {
+      Supermercado.cualquiera(precioMaximo(10000), marcaX("S4N"))
+    }
     // filtroMultipleNinguno
     // Todos los productos cuyo precio NO sea mayor o igual a 50000 (que sea menor a 50000)
     // y que NO sea menor o igual a 40000 (que sea mayor a 40000)
     // 7.2.1 TODO Definir el filtro filtroMultipleNinguno
-
-
+    def filtroMultipleNinguno: FiltroProducto = {
+      Supermercado.ninguno(precioMaximo(40000), precioMinimo(50000))
+    }
     // filtroMultipleTodos
     // Todos los productos cuyo precio sea menor o igual a 5000 y que no sea de la marca S4N
     // 7.3.1 TODO Definir el filtro filtroMultipleTodos
-
+    def filtroMultipleTodos: FiltroProducto = {
+      Supermercado.ninguno(precioMaximo(5000), noMarcaX("S4N"))
+    }
 
     assert(supermercado.buscarProductoPorFiltro(productos, filtroMultipleCualquiera).size == 2)
     assert(supermercado.buscarProductoPorFiltro(productos, filtroMultipleNinguno).size == 1)
     assert(supermercado.buscarProductoPorFiltro(productos, filtroMultipleTodos).size == 1)
 
   }
+
 }
