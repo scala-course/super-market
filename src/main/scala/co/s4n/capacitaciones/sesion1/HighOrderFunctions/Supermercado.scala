@@ -5,16 +5,11 @@ class Supermercado {
   import Supermercado._
 
   def buscarProductoPorNombre(productos: Seq[Producto], nombre: String): Seq[Producto] = {
-    if (productos.isEmpty) Seq()
-    else if (productos.head.nombre == nombre) Seq(productos.head)
-    else buscarProductoPorNombre(productos.tail, nombre)
+    productos.filter(_.nombre == nombre)
   }
 
   def buscarProductoPorFiltro(productos: Seq[Producto], filtro: FiltroProducto): Seq[Producto] = {
-
-    if (productos.isEmpty) Seq()
-    else if (filtro(productos.head)) buscarProductoPorFiltro(productos.tail, filtro) ++ Seq(productos.head)
-    else buscarProductoPorFiltro(productos.tail, filtro)
+    productos.filter(filtro)
   }
 
 }
@@ -28,30 +23,15 @@ object Supermercado {
   def complemento[A](predicado: A => Boolean): A => Boolean = param => !predicado(param)
 
   def cualquiera[A](predicados: (A => Boolean)*): A => Boolean = {
-    def validate(a: A, pred: Seq[(A => Boolean)]): Boolean = {
-      if (pred.isEmpty) false
-      else if (pred.head(a)) true
-      else validate(a, pred.tail)
-    }
-    a => validate(a, predicados);
+    a => predicados.exists(_(a))
   }
 
   def ninguno[A](predicados: (A => Boolean)*): A => Boolean = {
-    def validate(a: A, pred: Seq[(A => Boolean)]): Boolean = {
-      if (pred.isEmpty) true
-      else if (pred.head(a)) false
-      else validate(a, pred.tail)
-    }
-    a => validate(a, predicados);
+    complemento(cualquiera(predicados: _*))
   }
 
   def todos[A](predicados: (A => Boolean)*): A => Boolean = {
-    def validate(a: A, pred: Seq[(A => Boolean)]): Boolean = {
-      if (pred.isEmpty) true
-      else if (pred.head(a)) validate(a, pred.tail)
-      else false
-    }
-    a => validate(a, predicados);
+    complemento(ninguno(predicados: _*))
   }
 
 }

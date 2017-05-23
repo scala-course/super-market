@@ -4,7 +4,7 @@ import org.scalatest._
 
 class SupermercadoTest extends FunSuite {
 
-  import co.s4n.capacitaciones.sesion1.HighOrderFunctions.Supermercado._
+  import Supermercado._
 
   val productos: Seq[Producto] = Seq(
     Producto("Producto 1", "Pato", 5000),
@@ -75,7 +75,7 @@ class SupermercadoTest extends FunSuite {
       product => product.marca.eq(marca)
     }
     def noMarcaX(marca: String): FiltroProducto = {
-      Supermercado.complemento(marcaX(marca))
+      complemento(marcaX(marca))
     }
 
     assert(supermercado.buscarProductoPorFiltro(productos, marcaX("Pato")).size == 1)
@@ -109,18 +109,18 @@ class SupermercadoTest extends FunSuite {
     // filtroMultipleCualquiera
     // Todos los productos cuyo precio sea menor o igual a 10000 o sea de la marca S4N
     def filtroMultipleCualquiera: FiltroProducto = {
-      Supermercado.cualquiera(precioMaximo(10000), marcaX("S4N"))
+      cualquiera(precioMaximo(10000), marcaX("S4N"))
     }
     // filtroMultipleNinguno
     // Todos los productos cuyo precio NO sea mayor o igual a 50000 (que sea menor a 50000)
     // y que NO sea menor o igual a 40000 (que sea mayor a 40000)
     def filtroMultipleNinguno: FiltroProducto = {
-      Supermercado.ninguno(precioMaximo(40000), precioMinimo(50000))
+      ninguno(precioMaximo(40000), precioMinimo(50000))
     }
     // filtroMultipleTodos
     // Todos los productos cuyo precio sea menor o igual a 5000 y que no sea de la marca S4N
     def filtroMultipleTodos: FiltroProducto = {
-      Supermercado.ninguno(precioMaximo(5000), noMarcaX("S4N"))
+      ninguno(precioMaximo(5000), noMarcaX("S4N"))
     }
 
     assert(supermercado.buscarProductoPorFiltro(productos, filtroMultipleCualquiera).size == 2)
