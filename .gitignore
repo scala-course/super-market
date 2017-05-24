@@ -16,6 +16,6 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 .idea
-project/
-!/project/build.properties
-!/project/plugins.sbt
+project/project
+project/target
+
